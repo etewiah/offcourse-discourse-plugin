@@ -1,16 +1,6 @@
 CACHE MANIFEST
-# 2014-06-18:v3
-
-# offline.html will be displayed if the user is offline
-FALLBACK:
-/ /offcourse
-
-CACHE:
 /offcourse
 /plugins/Offcourse/assets/vendor.css
 /plugins/Offcourse/assets/offcourse.css
 /plugins/Offcourse/assets/vendor.js
 /plugins/Offcourse/assets/offcourse.js
-
-NETWORK:
-*

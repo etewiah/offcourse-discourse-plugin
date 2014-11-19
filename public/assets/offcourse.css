@@ -6112,26 +6112,34 @@ button.close {
     display: none !important; }
  }
 
-/* line 3, /Users/etewiah/Ed/sites-2014-nov/offcourse/tmp/tree_merger-tmp_dest_dir-blanqbpp.tmp/app/styles/app.scss */
+/* line 3, /Users/etewiah/Ed/sites-2014-nov/offcourse/tmp/tree_merger-tmp_dest_dir-ZfJpFVyy.tmp/app/styles/app.scss */
 html, body {
   margin: 20px; }
 
-/* line 6, /Users/etewiah/Ed/sites-2014-nov/offcourse/tmp/tree_merger-tmp_dest_dir-blanqbpp.tmp/app/styles/app.scss */
+/* line 6, /Users/etewiah/Ed/sites-2014-nov/offcourse/tmp/tree_merger-tmp_dest_dir-ZfJpFVyy.tmp/app/styles/app.scss */
 .categories-list, .offline-topics-list {
   float: left;
   width: 25%; }
 
-/* line 10, /Users/etewiah/Ed/sites-2014-nov/offcourse/tmp/tree_merger-tmp_dest_dir-blanqbpp.tmp/app/styles/app.scss */
+/* line 10, /Users/etewiah/Ed/sites-2014-nov/offcourse/tmp/tree_merger-tmp_dest_dir-ZfJpFVyy.tmp/app/styles/app.scss */
 .topics-list {
   float: left;
   width: 74%; }
 
-/* line 15, /Users/etewiah/Ed/sites-2014-nov/offcourse/tmp/tree_merger-tmp_dest_dir-blanqbpp.tmp/app/styles/app.scss */
+/* line 15, /Users/etewiah/Ed/sites-2014-nov/offcourse/tmp/tree_merger-tmp_dest_dir-ZfJpFVyy.tmp/app/styles/app.scss */
 .selectable-topics li {
   list-style: none; }
 
-/* line 19, /Users/etewiah/Ed/sites-2014-nov/offcourse/tmp/tree_merger-tmp_dest_dir-blanqbpp.tmp/app/styles/app.scss */
+/* line 19, /Users/etewiah/Ed/sites-2014-nov/offcourse/tmp/tree_merger-tmp_dest_dir-ZfJpFVyy.tmp/app/styles/app.scss */
 .offcourse-main {
   padding-top: 40px; }
+
+/* line 23, /Users/etewiah/Ed/sites-2014-nov/offcourse/tmp/tree_merger-tmp_dest_dir-ZfJpFVyy.tmp/app/styles/app.scss */
+.domain-form input {
+  min-width: 300px; }
+
+/* line 27, /Users/etewiah/Ed/sites-2014-nov/offcourse/tmp/tree_merger-tmp_dest_dir-ZfJpFVyy.tmp/app/styles/app.scss */
+.domain-form label {
+  color: black; }
 
 /*# sourceMappingURL=offcourse.css.map */
