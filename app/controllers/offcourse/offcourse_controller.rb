@@ -1,8 +1,11 @@
 module Offcourse
   class OffcourseController < Offcourse::ApplicationController
     layout false
-    def index
-      
+    def online      
     end
+# below has manifest declared
+    def index      
+    end
+
   end
 end
