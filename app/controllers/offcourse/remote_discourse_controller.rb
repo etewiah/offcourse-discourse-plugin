@@ -2,31 +2,44 @@ module Offcourse
   class RemoteDiscourseController  < Offcourse::ApplicationController
     # ApplicationController
     layout false
+    before_action :verify_host_param
+    # , only: [:update_geo_places]
+
+
+    def add_discourse_site
+      conn = connection params[:host]
+      site_info = remote_site_info conn
+      uri = URI.parse params[:host]
+
+      new_site = Offcourse::DiscourseSite.where(:base_url => params[:host]).first_or_initialize
+      new_site.meta = site_info
+      new_site.slug = uri.hostname.gsub( ".","_")
+      new_site.display_name = site_info['title']
+      new_site.description = site_info['description']
+      new_site.save!
+      render json: new_site.as_json
+    end
+
 
     def site_details
-      unless(params[:host] )
-        return render json: {"error" => {"message" => "incorrect params"}}
-      end
-      #   binding.pry
-
-      # if params[:host] == "/"
-      #   @about = About.new
-      #   # about_json = render_serialized(@about, AboutSerializer)
-      #   # above causes a 'circular dependency error'
-      #   about_json = JSON.parse('{"hello": "goodbye"}')
-      #   binding.pry
+      # unless(params[:host] )
+      #   return render json: {"error" => {"message" => "incorrect params"}}
       # end
 
       conn = connection params[:host]
-      response = conn.get '/about.json'     # GET http://sushi.com/nigiri/sake.json
-      rb = response.body
-      if response.status == 200
-        about_json = (JSON.parse response.body)['about']
-        about_json['host_url'] = params[:host]
-        return render json: about_json
-      else
-        return render json: {"error" => {"message" => "sorry, there has been an error"}}
-      end
+      site_info = remote_site_info conn
+      render json: site_info
+
+      # conn = connection params[:host]
+      # response = conn.get '/about.json'     # GET http://sushi.com/nigiri/sake.json
+      # rb = response.body
+      # if response.status == 200
+      #   about_json = (JSON.parse response.body)['about']
+      #   about_json['host_url'] = params[:host]
+      #   return render json: about_json
+      # else
+      #   return render json: {"error" => {"message" => "sorry, there has been an error"}}
+      # end
 
     end
 
@@ -73,6 +86,25 @@ module Offcourse
 
 
     private
+
+    def verify_host_param
+      unless(params[:host] )
+        return render json: {"error" => {"message" => "incorrect params"}}
+      end
+    end
+
+    def remote_site_info conn
+      response = conn.get '/about.json'     # GET http://sushi.com/nigiri/sake.json
+      rb = response.body
+      if response.status == 200
+        about_json = (JSON.parse response.body)['about']
+        # about_json['host_url'] = params[:host]
+        return about_json
+      else
+        return {"error" => {"message" => "sorry, there has been an error"}}
+      end
+
+    end
 
     def pass_through_request conn, path
       response = conn.get path

@@ -10,5 +10,6 @@ Offcourse::Engine.routes.draw do
   get "/remote_discourse/topic_details" => "remote_discourse#topic_details"
 
   get "/remote_discourse/site_details" => "remote_discourse#site_details"
+  get "/remote_discourse/add_discourse_site" => "remote_discourse#add_discourse_site"
 
 end
