@@ -4,23 +4,26 @@ module Offcourse
     layout false
 
     def site_details
-            unless(params[:host] )
+      unless(params[:host] )
         return render json: {"error" => {"message" => "incorrect params"}}
       end
-      conn = connection params[:host]
+      #   binding.pry
 
-      # Faraday.new(:url => params[:host]) do |faraday|
-      #   faraday.request  :url_encoded             # form-encode POST params
-      #   faraday.response :logger                  # log requests to STDOUT
-      #   faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+      # if params[:host] == "/"
+      #   @about = About.new
+      #   # about_json = render_serialized(@about, AboutSerializer)
+      #   # above causes a 'circular dependency error'
+      #   about_json = JSON.parse('{"hello": "goodbye"}')
+      #   binding.pry
       # end
 
+      conn = connection params[:host]
       response = conn.get '/about.json'     # GET http://sushi.com/nigiri/sake.json
       rb = response.body
       if response.status == 200
-        response_json = (JSON.parse response.body)['about']
-        response_json['host_url'] = params[:host]
-        return render json: response_json
+        about_json = (JSON.parse response.body)['about']
+        about_json['host_url'] = params[:host]
+        return render json: about_json
       else
         return render json: {"error" => {"message" => "sorry, there has been an error"}}
       end
