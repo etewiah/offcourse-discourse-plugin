@@ -8,4 +8,7 @@ Offcourse::Engine.routes.draw do
   get "/remote_discourse/categories" => "remote_discourse#categories"
   get "/remote_discourse/topics_per_category" => "remote_discourse#topics_per_category"
   get "/remote_discourse/topic_details" => "remote_discourse#topic_details"
+
+  get "/remote_discourse/site_details" => "remote_discourse#site_details"
+
 end
