@@ -2,44 +2,48 @@ module Offcourse
   class RemoteDiscourseController  < Offcourse::ApplicationController
     # ApplicationController
     layout false
-    before_action :verify_host_param
-    # , only: [:update_geo_places]
+    before_action :verify_host_param, except: [:get_or_add_site, :get_sites]
 
 
-    def add_discourse_site
-      conn = connection params[:host]
-      site_info = remote_site_info conn
-      uri = URI.parse params[:host]
+    # def add_discourse_site
+    #   conn = connection params[:host]
+    #   site_info = remote_site_info conn
 
-      new_site = Offcourse::DiscourseSite.where(:base_url => params[:host]).first_or_initialize
-      new_site.meta = site_info
-      new_site.slug = uri.hostname.gsub( ".","_")
-      new_site.display_name = site_info['title']
-      new_site.description = site_info['description']
-      new_site.save!
-      render json: new_site.as_json
+    #   new_site = create_site_record site_info
+    #   # new_site = Offcourse::DiscourseSite.where(:base_url => params[:host]).first_or_initialize
+    #   # new_site.meta = site_info
+    #   # new_site.slug = uri.hostname.gsub( ".","_")
+    #   # new_site.display_name = site_info['title']
+    #   # new_site.description = site_info['description']
+    #   # new_site.save!
+    #   render json: new_site.as_json
+    # end
+
+    def get_sites
+        site_records = Offcourse::DiscourseSite.all
+        return render json: site_records.as_json, root: false
     end
 
+    def get_or_add_site
+      if params[:slug]
+        site_record = Offcourse::DiscourseSite.where(:slug => params[:slug]).first
+        return render json: site_record.as_json
 
-    def site_details
-      # unless(params[:host] )
-      #   return render json: {"error" => {"message" => "incorrect params"}}
-      # end
+      else
 
-      conn = connection params[:host]
-      site_info = remote_site_info conn
-      render json: site_info
+        # TODO - calculate and use slug below to avoid say http & https confusion
+        site_record = Offcourse::DiscourseSite.where(:base_url => params[:host]).first
+        if site_record
+          return render json: site_record.as_json
+        else
+          conn = connection params[:host]
+          site_info = remote_site_info conn
+          new_site = create_site_record site_info
 
-      # conn = connection params[:host]
-      # response = conn.get '/about.json'     # GET http://sushi.com/nigiri/sake.json
-      # rb = response.body
-      # if response.status == 200
-      #   about_json = (JSON.parse response.body)['about']
-      #   about_json['host_url'] = params[:host]
-      #   return render json: about_json
-      # else
-      #   return render json: {"error" => {"message" => "sorry, there has been an error"}}
-      # end
+          render json: new_site.as_json
+        end
+      end
+
 
     end
 
@@ -98,12 +102,22 @@ module Offcourse
       rb = response.body
       if response.status == 200
         about_json = (JSON.parse response.body)['about']
-        # about_json['host_url'] = params[:host]
+        about_json['host_url'] = params[:host]
         return about_json
       else
         return {"error" => {"message" => "sorry, there has been an error"}}
       end
+    end
 
+    def create_site_record site_info
+      uri = URI.parse site_info['host_url']
+      new_site = Offcourse::DiscourseSite.where(:base_url => site_info['host_url']).first_or_initialize
+      new_site.meta = site_info
+      new_site.slug = uri.hostname.gsub( ".","_")
+      new_site.display_name = site_info['title']
+      new_site.description = site_info['description']
+      new_site.save!
+      return new_site
     end
 
     def pass_through_request conn, path
