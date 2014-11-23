@@ -2,26 +2,12 @@ module Offcourse
   class RemoteDiscourseController  < Offcourse::ApplicationController
     # ApplicationController
     layout false
-    before_action :verify_host_param, except: [:get_or_add_site, :get_sites]
+    # before_action :verify_host_param, except: [:get_or_add_site, :get_sites]
 
-
-    # def add_discourse_site
-    #   conn = connection params[:host]
-    #   site_info = remote_site_info conn
-
-    #   new_site = create_site_record site_info
-    #   # new_site = Offcourse::DiscourseSite.where(:base_url => params[:host]).first_or_initialize
-    #   # new_site.meta = site_info
-    #   # new_site.slug = uri.hostname.gsub( ".","_")
-    #   # new_site.display_name = site_info['title']
-    #   # new_site.description = site_info['description']
-    #   # new_site.save!
-    #   render json: new_site.as_json
-    # end
 
     def get_sites
-        site_records = Offcourse::DiscourseSite.all
-        return render json: site_records.as_json, root: false
+      site_records = Offcourse::DiscourseSite.all
+      return render json: site_records.as_json, root: false
     end
 
     def get_or_add_site
@@ -48,32 +34,34 @@ module Offcourse
     end
 
     def categories
-      unless(params[:host] )
+      unless(params[:host] || params[:slug] )
         return render json: {"error" => {"message" => "incorrect params"}}
       end
-      conn = connection params[:host]
+
+      if params[:slug]
+        site_record = Offcourse::DiscourseSite.where(:slug => params[:slug]).first
+        host = site_record.base_url
+      else
+        host = params[:host]
+      end
+
+      conn = connection host
       pass_through_request conn, "/categories.json"
     end
 
     def topics_per_category
-      unless(params[:host] && params[:category] )
+      if params[:slug]
+        site_record = Offcourse::DiscourseSite.where(:slug => params[:slug]).first
+        host = site_record.base_url
+      else
+        host = params[:host]
+      end
+
+      unless(host && params[:category] )
         return render json: {"error" => {"message" => "incorrect params"}}
       end
-      conn = connection params[:host]
+      conn = connection host
 
-      # Faraday.new(:url => params[:host]) do |faraday|
-      #   faraday.request  :url_encoded             # form-encode POST params
-      #   faraday.response :logger                  # log requests to STDOUT
-      #   faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
-      # end
-
-      # response = conn.get '/c/' + params[:category] + '.json'     # GET http://sushi.com/nigiri/sake.json
-      # rb = response.body
-      # if response.status == 200
-      #   return render json: response.body
-      # else
-      #   return render json: {"error" => {"message" => "incorrect params"}}
-      # end
       path = '/c/' + params[:category] + '.json'
       pass_through_request conn, path
     end
@@ -91,11 +79,11 @@ module Offcourse
 
     private
 
-    def verify_host_param
-      unless(params[:host] )
-        return render json: {"error" => {"message" => "incorrect params"}}
-      end
-    end
+    # def verify_host_param
+    #   unless(params[:host] )
+    #     return render json: {"error" => {"message" => "incorrect params"}}
+    #   end
+    # end
 
     def remote_site_info conn
       response = conn.get '/about.json'     # GET http://sushi.com/nigiri/sake.json
