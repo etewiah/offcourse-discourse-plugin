@@ -73,9 +73,21 @@ module Offcourse
         return render json: {"error" => {"message" => "incorrect params"}}
       end
       conn = connection host
+      page_number = params[:page_number] || "1"
+      # categories url has 0 based index for pages which is a bit annoying
+      discourse_page_number = page_number.to_i > 0 ? page_number.to_i - 1 : 0
+      path = "/c/" + params[:category] + "/l/latest.json?page=" + discourse_page_number.to_s
+      # '/c/' + params[:category] + '.json'
+      # pass_through_request conn, path
+      response = conn.get path
+      rb = JSON.parse response.body
 
-      path = '/c/' + params[:category] + '.json'
-      pass_through_request conn, path
+      if (response.status == 200) && rb["topic_list"]
+        return render json: { topic_list: rb["topic_list"],
+                              category: params[:category] }
+      else
+        return render json: {"error" => {"message" => "sorry, there has been an error"}}
+      end
     end
 
     def topic_details
