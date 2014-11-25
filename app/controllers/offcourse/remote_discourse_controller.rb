@@ -86,11 +86,20 @@ module Offcourse
     # end
 
     def remote_site_info conn
-      response = conn.get '/about.json'     # GET http://sushi.com/nigiri/sake.json
-      rb = response.body
-      if response.status == 200
-        about_json = (JSON.parse response.body)['about']
-        about_json['host_url'] = params[:host]
+      about_response = conn.get '/about.json'     # GET http://sushi.com/nigiri/sake.json
+      rb = about_response.body
+      if about_response.status == 200
+        about_json = (JSON.parse about_response.body)['about']
+        about_json['host_url'] = conn.url_prefix.to_s.downcase
+        # params[:host]
+        root_response = conn.get '/'
+        page = Nokogiri::HTML(root_response.body)
+        favicon_url = page.css('link[rel="icon"]')[0].attributes['href'].value rescue nil
+        about_json['favicon_url'] = favicon_url
+        apple_touch_icon_url = page.css('link[rel="apple-touch-icon777"]')[0].attributes['href'].value rescue nil
+        about_json['apple_touch_icon_url'] = apple_touch_icon_url
+        binding.pry
+
         return about_json
       else
         return {"error" => {"message" => "sorry, there has been an error"}}
@@ -104,6 +113,7 @@ module Offcourse
       new_site.slug = uri.hostname.gsub( ".","_")
       new_site.display_name = site_info['title']
       new_site.description = site_info['description']
+      new_site.logo_url = site_info['favicon_url']
       new_site.save!
       return new_site
     end
