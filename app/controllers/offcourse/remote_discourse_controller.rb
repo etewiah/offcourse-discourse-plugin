@@ -42,11 +42,23 @@ module Offcourse
         site_record = Offcourse::DiscourseSite.where(:slug => params[:slug]).first
         host = site_record.base_url
       else
-        host = params[:host]
+        site_record = Offcourse::DiscourseSite.where(:base_url => params[:host]).first
+        host = site_record.base_url
+        # host = params[:host]
       end
 
       conn = connection host
-      pass_through_request conn, "/categories.json"
+      # pass_through_request conn, "/categories.json"
+
+      response = conn.get "/categories.json"
+      rb = JSON.parse response.body
+
+      if (response.status == 200) && rb["category_list"]
+        return render json: { categories: rb["category_list"]["categories"],
+                              site_details: site_record.as_json }
+      else
+        return render json: {"error" => {"message" => "sorry, there has been an error"}}
+      end
     end
 
     def topics_per_category
@@ -96,10 +108,8 @@ module Offcourse
         page = Nokogiri::HTML(root_response.body)
         favicon_url = page.css('link[rel="icon"]')[0].attributes['href'].value rescue nil
         about_json['favicon_url'] = favicon_url
-        apple_touch_icon_url = page.css('link[rel="apple-touch-icon777"]')[0].attributes['href'].value rescue nil
+        apple_touch_icon_url = page.css('link[rel="apple-touch-icon"]')[0].attributes['href'].value rescue nil
         about_json['apple_touch_icon_url'] = apple_touch_icon_url
-        binding.pry
-
         return about_json
       else
         return {"error" => {"message" => "sorry, there has been an error"}}
