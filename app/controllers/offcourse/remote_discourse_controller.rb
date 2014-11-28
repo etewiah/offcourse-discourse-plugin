@@ -16,17 +16,21 @@ module Offcourse
         return render json: site_record.as_json
 
       else
-
+        uri = URI.parse(params[:host])
+        base_url = "#{uri.scheme}://#{uri.host}"
         # TODO - calculate and use slug below to avoid say http & https confusion
-        site_record = Offcourse::DiscourseSite.where(:base_url => params[:host]).first
+        site_record = Offcourse::DiscourseSite.where(:base_url => base_url).first
         if site_record
           return render json: site_record.as_json
         else
-          conn = connection params[:host]
+          conn = connection base_url
           site_info = remote_site_info conn
-          new_site = create_site_record site_info
-
-          render json: new_site.as_json
+          if site_info["error"]
+            return render status: :bad_request, json: site_info
+          else
+            new_site = create_site_record site_info
+            render json: new_site.as_json
+          end
         end
       end
 
